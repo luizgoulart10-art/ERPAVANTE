@@ -1,0 +1,123 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+<style>
+    /* Fundo infalível via URL web de alta performance */
+    body {
+        background: linear-gradient(rgba(6, 127, 234, 0.70), rgba(6, 127, 234, 0.70)), 
+                    url('https://avanteprojetos.com.br/img/Avante_logo.gif') !important;
+        background-size: 50px auto !important;
+        background-position: center !important;
+        background-attachment: fixed !important;
+        background-repeat: repeat !important;
+    }
+
+    .dashboard-container {
+        padding: 30px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .dashboard-container h1 {
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        font-size: 26px;
+        margin-bottom: 20px;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-top: 25px;
+    }
+
+    .btn-card {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        text-decoration: none;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        background: #ffffff;
+        border-color: #417690;
+    }
+
+    .btn-icon {
+        font-size: 28px;
+        margin-bottom: 10px;
+    }
+
+    .btn-title {
+        font-size: 16px;
+        font-weight: bold;
+        color: #417690;
+        margin-bottom: 5px;
+    }
+
+    .btn-desc {
+        font-size: 13px;
+        color: #666;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>Painel de Controle - ERP</h1>
+    
+    <div class="dashboard-grid">
+        <a href="{% url 'cash_flow_dashboard' %}" class="btn-card">
+            <span class="btn-icon">💰</span>
+            <span class="btn-title">Fluxo de Caixa</span>
+            <span class="btn-desc">Saldos e Provisões</span>
+        </a>
+        
+        <a href="{% url 'open_orders_dashboard' %}" class="btn-card">
+            <span class="btn-icon">📦</span>
+            <span class="btn-title">Pedidos Pendentes</span>
+            <span class="btn-desc">Compras e Vendas em Aberto</span>
+        </a>
+
+        <a href="{% url 'credit_cards:dashboard' %}" class="btn-card">
+            <span class="btn-icon">💳</span>
+            <span class="btn-title">Cartões de Crédito</span>
+            <span class="btn-desc">Planilha de Faturas e Parcelas</span>
+        </a>
+
+        <a href="/admin/orders/salesorder/" class="btn-card">
+            <span class="btn-icon">🤝</span>
+            <span class="btn-title">Vendas</span>
+            <span class="btn-desc">Gerenciar Pedidos de Venda</span>
+        </a>
+
+        <a href="/admin/orders/purchaseorder/" class="btn-card">
+            <span class="btn-icon">🛒</span>
+            <span class="btn-title">Compras</span>
+            <span class="btn-desc">Gerenciar Pedidos e Fornecedores</span>
+        </a>
+
+        <a href="/admin/production/productionorder/" class="btn-card">
+            <span class="btn-icon">⚙️</span>
+            <span class="btn-title">Produção</span>
+            <span class="btn-desc">Ordens de Produção e BoM</span>
+        </a>
+
+        <a href="/admin/inventory/product/" class="btn-card">
+            <span class="btn-icon">🏭</span>
+            <span class="btn-title">Estoque</span>
+            <span class="btn-desc">Produtos e Inventário</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

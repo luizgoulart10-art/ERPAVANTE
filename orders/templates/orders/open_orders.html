@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Pedidos em Aberto - ERP</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h2 { color: #333; margin-top: 30px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f8f9fa; color: #333; }
+        .badge-compra { background: #17a2b8; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .badge-venda { background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .item-lista { margin: 0; padding: 0; list-style-type: none; font-size: 13px; }
+        .item-lista li { margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Painel de Pedidos em Aberto</h1>
+        <a href="/admin/">⬅ Voltar ao Painel Admin</a>
+        
+        <!-- Tabela de Vendas -->
+        <h2>📦 Vendas a Entregar (Saídas)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Pedido</th>
+                    <th>Cliente</th>
+                    <th>Prazo de Entrega</th>
+                    <th>Itens (Descrição e Qtd)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for venda in vendas_abertas %}
+                <tr>
+                    <td><b>#{{ venda.id }}</b> <span class="badge-venda">Venda</span></td>
+                    <td>{{ venda.customer.name }}</td>
+                    <td style="color: {% if venda.delivery_date %}#d9534f; font-weight: bold;{% else %}#999{% endif %}">
+                        {{ venda.delivery_date|date:"d/m/Y"|default:"Sem Prazo" }}
+                    </td>
+                    <td>
+                        <ul class="item-lista">
+                            {% for item in venda.items.all %}
+                            <li>✔️ {{ item.product.name }} — <b>{{ item.quantity }} un</b></li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align: center;">Nenhuma venda em aberto.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Tabela de Compras -->
+        <h2>🛒 Compras a Receber (Entradas)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Pedido</th>
+                    <th>Fornecedor</th>
+                    <th>Prazo de Recebimento</th>
+                    <th>Itens (Descrição e Qtd)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for compra in compras_abertas %}
+                <tr>
+                    <td><b>#{{ compra.id }}</b> <span class="badge-compra">Compra</span></td>
+                    <td>{{ compra.supplier.name }}</td>
+                    <td style="color: {% if compra.receipt_date %}#d9534f; font-weight: bold;{% else %}#999{% endif %}">
+                        {{ compra.receipt_date|date:"d/m/Y"|default:"Sem Prazo" }}
+                    </td>
+                    <td>
+                        <ul class="item-lista">
+                            {% for item in compra.items.all %}
+                            <li>✔️ {{ item.product.name }} — <b>{{ item.quantity }} un</b></li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align: center;">Nenhuma compra em aberto.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Fluxo de Caixa - ERP</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; padding: 20px; }
+        .container { max-width: 1250px; margin: 0 auto; }
+        .dashboard { display: flex; gap: 20px; margin-top: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); flex: 1; }
+        .card h2 { margin-top: 0; font-size: 18px; color: #555; }
+        .valor { font-size: 28px; font-weight: bold; margin: 10px 0; }
+        .positivo { color: #28a745; }
+        .negativo { color: #dc3545; }
+        .detalhes { font-size: 14px; color: #666; border-top: 1px solid #eee; padding-top: 10px; }
+        
+        .extrato-container { margin-top: 40px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f8f9fa; color: #333; }
+        .status-pago { color: #28a745; font-weight: bold; }
+        .status-pendente { color: #f0ad4e; font-weight: bold; }
+        .item-lista { margin: 0; padding-left: 15px; font-size: 13px; list-style-type: none; }
+        .item-lista li { margin-bottom: 2px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Visão de Fluxo de Caixa</h1>
+        <a href="/admin/">⬅ Voltar ao Painel Admin</a>
+        
+        <div class="dashboard">
+            <div class="card">
+                <h2>Saldo Realizado (Caixa Atual)</h2>
+                <div class="valor {% if saldo_real >= 0 %}positivo{% else %}negativo{% endif %}">
+                    R$ {{ saldo_real }}
+                </div>
+                <div class="detalhes">
+                    <p>Entradas (Pagas): R$ {{ entradas_real }}</p>
+                    <p>Saídas (Pagas): R$ {{ saidas_real }}</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Provisões Pendentes</h2>
+                <div class="valor" style="color: #007bff;">A Pagar/Receber</div>
+                <div class="detalhes">
+                    <p>A Receber: R$ {{ entradas_pend }}</p>
+                    <p>A Pagar: R$ {{ saidas_pend }}</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Saldo Projetado Futuro</h2>
+                <div class="valor {% if saldo_projetado >= 0 %}positivo{% else %}negativo{% endif %}">
+                    R$ {{ saldo_projetado }}
+                </div>
+                <div class="detalhes">
+                    <p>Considerando o caixa atual mais todas as previsões.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="extrato-container">
+            <h2>Extrato Detalhado</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 100px;">Vencimento</th>
+                        <th style="width: 220px;">Descrição</th>
+                        <th style="width: 110px;">Tipo</th>
+                        <th style="width: 200px;">Produtos (Qtd)</th>
+                        <th style="width: 130px;">Status Entrega</th>
+                        <th style="width: 130px;">Status Pagamento</th>
+                        <th style="width: 120px;">Valor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in registros %}
+                    <tr>
+                        <td>{{ item.due_date|date:"d/m/Y" }}</td>
+                        <td>{{ item.title }}</td>
+                        <td>{{ item.get_record_type_display }}</td>
+                        
+                        <td>
+                            <ul class="item-lista">
+                                {% if item.sales_order %}
+                                    {% for prod_item in item.sales_order.items.all %}
+                                        <li>✔️ {{ prod_item.product.name }} — <b>{{ prod_item.quantity|floatformat:0 }} un</b></li>
+                                    {% endfor %}
+                                {% elif item.purchase_order %}
+                                    {% for prod_item in item.purchase_order.items.all %}
+                                        <li>✔️ {{ prod_item.product.name }} — <b>{{ prod_item.quantity|floatformat:0 }} un</b></li>
+                                    {% endfor %}
+                                {% else %}
+                                    <span style="color: #999;">—</span>
+                                {% endif %}
+                            </ul>
+                        </td>
+
+                        <!-- COLUNA DE STATUS DE ENTREGA -->
+                        <td><b>{{ item.delivery_status }}</b></td>
+
+                        <!-- COLUNA DE STATUS DE PAGAMENTO -->
+                        <td class="{% if item.status == 'PAID' %}status-pago{% else %}status-pendente{% endif %}">
+                            {{ item.get_status_display }}
+                        </td>
+
+                        <td class="{% if item.record_type == 'RECEIVABLE' %}positivo{% else %}negativo{% endif %}">
+                            {% if item.record_type == 'PAYABLE' %}-{% endif %} R$ {{ item.amount }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center;">Nenhum registro financeiro encontrado.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
